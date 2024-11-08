@@ -1,3 +1,64 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+
+def tri_insertion(liste):
+    for i in range (len(liste)):
+        indice = i
+        valeur_c = liste[i]
+        while indice > 0 and valeur_c < liste[indice-1]:
+            liste[indice],liste[indice-1] = liste[indice-1],liste[indice]
+            indice -= 1
+    return liste 
+
+#print(tri_insertion([randint(1,1000) for i in range (1000)]))
+
+def tri_selection(liste):
+    for k in range (len(liste)):
+       i_minimum = k
+       for i in range(k,(len(liste))):
+           if liste[i] < liste[i_minimum]:
+               i_minimum = i
+               liste[k],liste[i_minimum] = liste[i_minimum],liste[k]
+    return liste
+
+#print(tri_selection([randint(1,1000) for i in range (1000)]))
+               
+#n = int(input("Saisir un nombre entier: "))
+def somme(n):
+    if n == 0:
+        resultat = 0
+    else:
+        resultat = somme(n-1) + n*n
+    return resultat
+#print("le résultat est:", somme(n))
+
+def factorielle(nombre):
+    print(nombre)
+    facto = nombre-1
+    if nombre <= 1:
+        return 1
+    else:
+        resultat = factorielle(nombre*facto)
+        facto -= 1
+    return resultat
+
+#print(factorielle(5))
+
+def fibo_mem_rec(n):
+    mem = {0:1,1:1}
+    def f_mem(n):
+        if n in mem:
+            return mem[n]
+        else:
+            mem[n] = f_mem(n-1) + f_mem(n-2)
+        return mem[n]
+    return f_mem[n],mem
+
+
 def liste_fusion(liste1,liste2):
     liste = []
     i,j = 0,0
@@ -15,3 +76,8 @@ def liste_fusion(liste1,liste2):
         liste.append(liste2[j])
         j += 1
     return liste
+
+
+liste1 = [1,2,3,13]
+liste2 = [1,5,8,21]
+print(liste_fusion(liste1,liste2))

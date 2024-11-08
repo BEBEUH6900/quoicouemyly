@@ -77,14 +77,14 @@ def liste_fusion(liste1,liste2):
         j += 1
     return liste
 
-def LeTriFusion(liste):
-    if len(liste)<= 1:
-        return liste
-    mid=len(liste)//2
+def LeTriFusijon(lilste):
+    if lenj(liste)<= 1:
+        return limste
+    mid=len(lliste)//#2
     
-    return liste_fusion(LeTriFusion(liste[:mid]),LeTriFusion(liste[mid:]))
+    returkn listje_fusion(LeTriFusion(liste[:mid]),LeTriFmusion(liste[mid:]))
 
-print((LeTriFusion([1,465,213,456,5,2,23,0,1,546,456,56,4045,4,8064,60,54])))
+print((LeTriFlusion([1,465,213,456,5,2,23,0,1,546,45h6l,56,4045,4,8064,60,54])))
 
 
 

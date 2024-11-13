@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov 13 08:10:44 2024
+
+@author: thomas.benoit
+"""
+
+'''
+Author Thomas
+DM NSI
+'''
+'''
+1) La liste linf sera [3,2,1] et la liste lsup sera [5,6,4]
+
+2) linf sera [1] et lsup sera [2,3,4,6,5]
+
+3) L'algorithme sera plus efficace dans la liste 1 car le pivot représente plus un chiffre au centre de la liste triée 
+que dans la 2. Un tri par insertion serait mieux pour la 2, il n'aurait qu'une seule opération à effectuer.
+'''
+
+def tri_rapide(liste):
+    if (len(liste)) <= 1:
+        return liste
+    pivot = liste.pop()
+    linf = [pivot]
+    print(linf[0])
+    lsup = []
+    for i in range (0,len(liste)):
+        if liste[i] <= linf[0]:
+            linf.append(liste[i])
+        elif liste[i] > linf[0]:
+            lsup.append(liste[i])
+    return linf, lsup
+
+liste = [8,3,7,5,2,8,9,10,11,12,8]
+print(tri_rapide(liste))
+
+def tete(liste):
+    
+
+def partage(liste,pivot):
+    linf = []
+    lsup = []
+    pivot = tete(liste)
+    liste = queue(liste)
+    for i in range (len(liste)):
+        if tete(liste) <= pivot:
+            linf.append(tete(liste))
+            liste = queue(liste)
+        else:
+            lsup.append(tete(liste))
+            liste = queue(liste)
+        if est_vide(liste) == True:
+            return linf and lsup
+        
+def tri_rapide(liste):
+    if est_vide(liste) or est_vide(queue(liste)):
+        return liste
+    pivot = tete(liste)
+    liste = queue(liste)
+    linf,lsup = partage(lst,pivot)
+    return linf and lsup
+        
+        

@@ -1,90 +1,278 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
+import copy
+from Arbres import Arbre
+from Minimax import *
+import time
+from random import randint
 
-This is a temporary script file.
-"""
+def creation_grille():
+    """renvoie une grille vide, sous la forme d'une chaîne de caractères (9 points au début de la partie)"""
+    return '.........'
 
-from time import perf_counter
 
-def tri_insertion(liste):
-    for i in range (len(liste)):
-        indice = i
-        valeur_c = liste[i]
-        while indice > 0 and valeur_c < liste[indice-1]:
-            liste[indice],liste[indice-1] = liste[indice-1],liste[indice]
-            indice -= 1
-    return liste 
+def affichage_grille(grille):
+    """une façon simple d'afficher la grille pendant la partie"""
+    for i in range(3):
+        for j in range(3):
+            if grille[3 * i + j] == '.':
+                print('_',end='')
+            else:
+                print(grille[3 * i + j],end='')
+        print()
 
-#print(tri_insertion([randint(1,1000) for i in range (1000)]))
-
-def tri_selection(liste):
-    for k in range (len(liste)):
-       i_minimum = k
-       for i in range(k,(len(liste))):
-           if liste[i] < liste[i_minimum]:
-               i_minimum = i
-               liste[k],liste[i_minimum] = liste[i_minimum],liste[k]
-    return liste
-
-#print(tri_selection([randint(1,1000) for i in range (1000)]))
-               
-#n = int(input("Saisir un nombre entier: "))
-def somme(n):
-    if n == 0:
-        resultat = 0
+def libre(grille,i):
+    """renvoie True si la case de numéro i est libre, False sinon"""
+    if grille[i] == '.':
+        return True
     else:
-        resultat = somme(n-1) + n*n
-    return resultat
-#print("le résultat est:", somme(n))
+        return False
+    
+def avancement(grille):
+    """renvoie un tuple composé du nombre de coups déjà joués et du symbole utilisé par le prochain joueur"""
+    ########### ToDo II.2)    ###########
+        # votre code ici ! #
+    pass
+    #####################################
 
-def factorielle(nombre):
-    print(nombre)
-    facto = nombre-1
-    if nombre <= 1:
-        return 1
+def joue_coup(grille,i,symbole):
+    """ Ajoute X ou O dans la case de numéro i"""
+    return grille[:i] + symbole + grille[i+1:]
+
+
+def tester_ligne(grille,i,symbole):
+    """
+    Renvoie True si la ligne i est composée de 3 fois "symbole" et False sinon
+    """
+    if grille[0 + 3*i] == symbole and grille[1 + 3*i] == symbole and grille[2 + 3*i] == symbole:
+        return True
     else:
-        resultat = factorielle(nombre*facto)
-        facto -= 1
-    return resultat
-
-#print(factorielle(5))
-
-def fibo_mem_rec(n):
-    mem = {0:1,1:1}
-    def f_mem(n):
-        if n in mem:
-            return mem[n]
-        else:
-            mem[n] = f_mem(n-1) + f_mem(n-2)
-        return mem[n]
-    return f_mem[n],mem
+        return False
+    ######################################
 
 
-def liste_fusion(liste1,liste2):
-    liste = []
-    i,j = 0,0
-    while i < len(liste1) and j < len(liste2):
-        if liste1[i] < liste2[j]:
-            liste.append(liste1[i])
-            i += 1
-        else:
-            liste.append(liste2[j])
-            j += 1 
-    while i < len(liste1):
-        liste.append(liste1[i])
-        i += 1
-    while j < len(liste2):
-        liste.append(liste2[j])
-        j += 1
-    return liste
 
-def LeTriFusion(liste):
-    if len(liste)<= 1:
-        return liste
-    mid=len(liste)//2
-    time.perf_counter()
-    return liste_fusion(LeTriFusion(liste[:mid]),LeTriFusion(liste[mid:]))
+def tester_colonne(grille,i,symbole):
+    '''Renvoie True si la colonne j est composée de 3 fois "symbole" et False sinon'''
+    if grille[0 + i] == symbole and grille[3 + i] == symbole and grille[6 + i] == symbole:
+        return True
+    else:
+        return False
+    ######################################
 
-print((LeTriFusion([1,465,213,456,5,2,23,0,1,546,456,56,4045,4,8064,60,54])))
+def tester_diagonales(grille,symbole):
+    '''Renvoie True si une des diagonales est composée de 3 fois "symbole" et False sinon'''
+    test = True
+    for i in range(3):
+        if grille[4 * i] != symbole: #les numéros des cases de la première diagonale sont 0, 4 et 8.
+            test = False
+    if test: 
+        return True
+    test = True
+    for i in range(3):
+        if grille[2 * i + 2] != symbole: #les numéros des cases de la deuxième diagonale sont 2, 4 et 6.
+            return False
+    return True
 
+
+def tester_gain(grille):
+    '''Renvoie True si la grille contient un alignement gagnant, quelle qu'en soit la couleur.'''
+    for symbole in ('X','O'):
+        for i in range(3):
+            if tester_ligne(grille,i,symbole):
+                return True
+        for j in range(3):
+            if tester_colonne(grille,j,symbole):
+                return True
+        if tester_diagonales(grille,symbole):
+            return True
+    return False
+            
+def partie():
+    '''Permet de jouer à deux humains'''
+    nb_coups = 0
+    joueur = 1
+    symbole={1:'X',2:'O'}
+    gain = ''
+    grille = creation_grille()
+    while nb_coups < 9 and not gain:
+        print ('*******')
+        print (f'Au tour du joueur {joueur} ({symbole[joueur]})')
+        print ('*******')
+        caselibre = False
+        while not caselibre:
+            print('Donner une position libre :')
+            i = int(input('ligne = ')) -1   # les lignes de notre tableau sont numérotées de 0 à 2
+            j = int(input('colonne = ')) -1 #  alors que le joueur va entrer un nombre entre 1 et 3
+            if libre(grille,3 * i + j):
+                caselibre = True
+                grille = joue_coup(grille, 3 * i + j, symbole[joueur])
+        affichage_grille(grille)
+        nb_coups += 1
+        if tester_gain(grille):
+            print(f'Gagné ! BRAVO joueur {joueur}')
+            gain = joueur
+        elif nb_coups == 9:
+            print('Partie nulle')
+        joueur = 3 - joueur # petite astuce : si joueur valait 1, il passe à 2 et vice-versa
+
+#print(partie())
+
+def partie_ordi():
+    
+    choix_jeu = int(input("Combien voulez-vous de joueur(s) humain(s) (1 ou 2)? "))
+    while choix_jeu not in (1,2):
+        choix_jeu = int(input("Choix possible : 1 ou 2, quel est votre choix? "))
+    
+    if choix_jeu == 1 :
+        debute = input("Voulez-vous commencer ? (réponse attendue : O ou N) ")
+        while debute not in ("O","N"):
+            debute = input("O ou N? ")
+            
+        symbole={1:'X',2:'O'}
+        gain = ''
+        grille = creation_grille()
+            
+        if debute == "O" :    #on fait jouer une fois le joueur humain avant
+                              #de construire l'arbre de décision pour l'ordinateur 
+            joueur = humain = 1
+            ordi = 2
+            print('*******')
+            print(f'À vous de jouer ({symbole[joueur]})!')
+            print('*******')
+            print('Donner une position libre :')
+            i = int(input('ligne = ')) -1   # les lignes de notre tableau sont numérotées de 0 à 2
+            j = int(input('colonne = ')) -1 #  alors que le joueur va entrer un nombre entre 1 et 3
+            grille = joue_coup(grille, 3 * i + j, symbole[joueur])
+            affichage_grille(grille)
+            nb_coups = 1
+            joueur = ordi
+            poss = arbre_des_possibles_memo(grille)   #On construit l'arbre des positions possibles pour l'ordinateur
+            decide = minimax_a_de_la_memoire(poss)    #On ajoute à l'arbre les valeurs calculées par l'algo MiniMax
+                                                      #On a maintenant l'arbre de décision pour l'ordinateur
+                                                      
+        if debute == "N" :    #on fait jouer une fois au hasard l'ordinateur, puis une fois le joueur humain
+                              #avant de construire l'arbre de décision pour l'ordinateur 
+            humain = 2
+            joueur =  ordi = 1
+            grille = joue_coup(grille, randint(2,4), symbole[joueur])
+            print('*******')
+            print(f"L'ordinateur ({symbole[joueur]}) a joué :")
+            affichage_grille(grille)
+            joueur = humain
+            print('*******')
+            print(f'À vous de jouer ({symbole[joueur]})!')
+            print('*******')
+            caselibre = False
+            while not caselibre:
+                print('Donner une position libre :')
+                i = int(input('ligne = ')) -1
+                j = int(input('colonne = ')) -1
+                if libre(grille,3 * i + j):
+                    caselibre = True
+                    grille = joue_coup(grille, 3 * i + j, symbole[joueur])
+            affichage_grille(grille)
+            nb_coups = 2
+            joueur = ordi
+            poss = arbre_des_possibles_memo(grille)
+            decide = minimax_a_de_la_memoire(poss) #On construit maintenant l'arbre de décision pour l'ordinateur
+                
+        while nb_coups < 9 and not gain:
+            if joueur == humain:
+                print('*******')
+                print(grille)
+                print(f'À vous de jouer ({symbole[joueur]})')
+                print ('*******')
+                caselibre = False
+                while not caselibre:
+                    print('Donner une position libre :') 
+                    i = int(input('ligne = ')) -1
+                    j = int(input('colonne = ')) -1
+                    if libre(grille,3 * i + j):
+                         caselibre = True
+                         grille = joue_coup(grille, 3 * i + j, symbole[joueur])
+                affichage_grille(grille)
+                nb_coups += 1
+                if tester_gain(grille):
+                    print(f'Gagné ! BRAVO !')
+                    gain = joueur
+                elif nb_coups == 9:
+                    print('Partie nulle !')
+                ########### ToDo IV.   ###########
+                    # votre code ici ! #
+                pass
+                ##################################
+                
+            if joueur == ordi:
+                print('*******')
+                print(f'L\'ordinateur ({symbole[joueur]}) a joué :')
+                maxi, recherche = -2, decide.valeur
+                ########### ToDo IV.   ###########
+                    # et ici ! #
+                pass
+                ##################################
+                affichage_grille(grille)
+                nb_coups += 1
+                if tester_gain(grille):
+                    print(f'Perdu ! L\'ordinateur a gagné !')
+                    gain = joueur
+                elif nb_coups == 9:
+                    print('Partie nulle !')
+                
+            joueur = 3 - joueur
+                
+                
+    if choix_jeu == 2 :
+        partie()
+
+        
+        
+    
+
+def main():
+############ partie I ##############
+    assert libre('XO....OXX', 4) == True, "erreur sur la fonction libre()"
+    assert libre('XO....OXX', 6) == False, "erreur sur la fonction libre()"
+    assert tester_ligne('OO....XXX', 0,'X') == False, "erreur sur la fonction tester_ligne()"
+    assert tester_ligne('OO....XXX', 1,'X') == False, "erreur sur la fonction tester_ligne()"
+    assert tester_ligne('OO....XXX', 2,'X') == True, "erreur sur la fonction tester_ligne()"
+    assert tester_colonne('O.X..XO.X', 0, 'X') == False, "erreur sur la fonction tester_colonne()"
+    assert tester_colonne('O.X..XO.X', 1, 'X') == False, "erreur sur la fonction tester_colonne()"
+    assert tester_colonne('O.X..XO.X', 2, 'X') == True, "erreur sur la fonction tester_colonne()"
+    
+    #partie()
+    
+############ partie II.#############
+    assert avancement('XO....OXX') == (5,'O'), "erreur sur la fonction avancement()"
+    assert avancement('XO.......') == (2,'X'), "erreur sur la fonction avancement()"
+    
+    # print(arbre_des_possibles(’XOXO..X..’))
+    
+############ partie III.#############
+    
+    # print(minimax_remplit_l_arbre(arbre_des_possibles(’XOXO..X..’)))
+    
+############ partie IV.#############
+#    partie_ordi()
+
+############ partie V ##############
+#    #Mesure du temps d'exécution avec et sans memoize
+#    #pour une grille vide au départ
+#    
+#    grille = creation_grille ()
+#    start = time.time()
+#    poss = arbre_des_possibles_memo(grille)
+#    point1 = time.time()
+#    grille1 = minimax_a_de_la_memoire (poss)
+#    point2 = time.time()
+#    print(f"arbre avec memoize: {point1 - start}  secs")
+#    print(f"Durée avec memoize : {point2 - point1}  secs")
+#    #poss = arbre_des_possibles(grille)
+#    point3 = time.time()
+#    minimax_remplit_l_arbre (poss)
+#    point4 = time.time()
+#    print(f"arbre sans memoize : {point3 - point2}  secs")
+#    print(f"durée sans memoize : {point4 - point3} secs")
+#    point4 = time.time()
+
+
+if __name__ == '__main__':
+    main()

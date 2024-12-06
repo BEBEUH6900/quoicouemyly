@@ -1,0 +1,17 @@
+def dfs (G,sommet):
+    s_v = []
+    s_f = []
+    p = Pile()
+    s_v.append(sommet)
+    p.empiler(sommet)
+    while not p.vide():
+        tmp = p.sommet
+        voisins=[y for y in voisin(G,tmp) if y not in s_v]
+        if voisins != []:
+            v = random.choice(voisins)
+            s_v.append(v)
+            p.empiler(v)
+        else:
+            s_f.append(tmp)
+            p.depiler()
+    return s_f

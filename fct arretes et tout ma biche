@@ -1,0 +1,17 @@
+
+
+def sommets(G):
+    return len(G)
+
+def aretes(G):
+    s = 0
+    alphabet = ['a','b','c','d','e','f','g','h']
+    for i in range (0,len(alphabet)):
+        s += (len(G[alphabet[i]]))
+    s = s//2
+    return s
+
+def degre(G):
+    
+
+print(aretes(G))

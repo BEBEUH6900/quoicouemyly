@@ -1,0 +1,28 @@
+import keyboard
+import keyboard.mouse as m 
+from time import sleep
+
+
+
+
+i = None
+
+keyboard.add_hotkey('0', lambda : remove_my_hotkey())
+keyboard.add_hotkey('1', lambda : myadd_hotkey())
+def autoclick():
+   while True:
+       m.click()
+       sleep(1/20)
+       if keyboard.is_pressed('up_arrow'):
+            break
+    
+def myadd_hotkey():
+    global i 
+    i = keyboard.add_hotkey('down_arrow', lambda : autoclick())
+    
+
+def remove_my_hotkey():
+    global i
+    if i != None:    
+        keyboard.remove_hotkey(i)
+    i = None
